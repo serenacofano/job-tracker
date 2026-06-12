@@ -2,11 +2,14 @@ name: security checks
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: ["**"]
   schedule:
-    - cron: '0 1 * * *' # dayly at 1:00 am
+    - cron: '0 1 * * *' # daily at 1:00 am
 
 jobs:
   secrets-scan:
+    if: github.event_name == 'push'
     permissions:
       contents: read
     runs-on: ubuntu-latest

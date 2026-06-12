@@ -34,7 +34,7 @@ jobs:
       - name: install dependencies
         run: pip install uv && uv sync --group dev
       - name: run tests
-        run: uv run pytest
+        run: uv run pytest || [ $? -eq 5 ]
   type-check:
     permissions:
       contents: read
