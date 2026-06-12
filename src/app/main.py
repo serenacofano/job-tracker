@@ -1,6 +1,7 @@
-def main():
-    print("Hello from job-tracker!")
+from fastapi import FastAPI
+from app.routers import company, job, application
 
-
-if __name__ == "__main__":
-    main()
+app = FastAPI(title="Job Tracker")
+app.include_router(company.router)
+app.include_router(job.router)
+app.include_router(application.router)

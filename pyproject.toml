@@ -16,4 +16,4 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff", "mypy", "pytest", "pip-audit", "bandit"]
+dev = ["ruff", "mypy", "pytest", "pip-audit", "bandit", "alembic"]
