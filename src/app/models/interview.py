@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Date, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, Date, Enum, ForeignKey, Integer, Text
 
 from app.database import Base
 

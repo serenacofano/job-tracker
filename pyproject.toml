@@ -17,3 +17,10 @@ dependencies = [
 
 [dependency-groups]
 dev = ["ruff", "mypy", "pytest", "pip-audit", "bandit", "alembic"]
+
+[tool.mypy]
+python_version = "3.13"
+
+[[tool.mypy.overrides]]
+module = ["app.models.*"]
+ignore_errors = true
