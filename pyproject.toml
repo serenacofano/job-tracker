@@ -13,6 +13,7 @@ dependencies = [
     "bcrypt",
     "pyjwt",
     "pydantic-settings",
+    "email-validator"
 ]
 
 [dependency-groups]
