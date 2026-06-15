@@ -27,9 +27,9 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 def login(data: UserCreate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.hashed_password):
+    if not user or not verify_password(data.password, user.hashed_password): # type: ignore[arg-type]
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return Token(access_token=create_access_token(user.id))
+    return Token(access_token=create_access_token(user.id)) # type: ignore[arg-type]
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme), db: Session = Depends(get_db)) -> User:
