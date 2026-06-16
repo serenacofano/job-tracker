@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import Applications from './pages/Applications'
 
 const queryClient = new QueryClient()
 
@@ -21,6 +22,11 @@ export default function App() {
           <Route path="/dashboard" element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/applications" element={
+            <PrivateRoute>
+              <Applications />
             </PrivateRoute>
           } />
           <Route path="*" element={<Navigate to="/login" />} />

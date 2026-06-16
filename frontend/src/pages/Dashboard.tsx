@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getApplications } from '../api/applications'
 import type { ApplicationStatus } from '../types'
+import Navbar from '../components/Navbar'
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
   applied: 'Applied',
@@ -34,7 +35,9 @@ export default function Dashboard() {
   }, {} as Record<ApplicationStatus, number>)
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <>
+      <Navbar />
+      <div className="p-8 max-w-5xl mx-auto">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
@@ -64,5 +67,6 @@ export default function Dashboard() {
         )}
       </div>
     </div>
+    </>
   )
 }
