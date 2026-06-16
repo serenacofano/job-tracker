@@ -13,7 +13,7 @@ class InterviewCreate(BaseModel):
     date: date
     questions: Optional[str] = None
     outcome: InterviewOutcome
-    feeling: Optional[int] = Field(default=None, ge=1, le=5)
+    feeling: int = Field(ge=1, le=5)
 
 
 class InterviewUpdate(BaseModel):
