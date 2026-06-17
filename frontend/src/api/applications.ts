@@ -20,3 +20,8 @@ export const createApplication = async (data: {
 export const deleteApplication = async (id: number): Promise<void> => {
     await client.delete(`/applications/${id}/`)
 }
+
+export const updateApplication = async ({ id, data }: { id: number; data: Partial<Omit<Application, 'id'>> }): Promise<Application> => {
+  const response = await client.put<Application>(`/applications/${id}/`, data)
+  return response.data
+}

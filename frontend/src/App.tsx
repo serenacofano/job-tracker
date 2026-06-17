@@ -4,6 +4,9 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Applications from './pages/Applications'
+import Companies from './pages/Companies'
+import Jobs from './pages/Jobs'
+import Interviews from './pages/Interviews'
 
 const queryClient = new QueryClient()
 
@@ -27,6 +30,21 @@ export default function App() {
           <Route path="/applications" element={
             <PrivateRoute>
               <Applications />
+            </PrivateRoute>
+          } />
+          <Route path="/companies" element={
+            <PrivateRoute>
+              <Companies />
+            </PrivateRoute>
+          } />          
+          <Route path="/jobs" element={
+            <PrivateRoute>
+              <Jobs />
+            </PrivateRoute>
+          } />
+          <Route path="/interviews" element={
+            <PrivateRoute>
+              <Interviews />
             </PrivateRoute>
           } />
           <Route path="*" element={<Navigate to="/login" />} />
