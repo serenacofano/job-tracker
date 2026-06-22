@@ -19,11 +19,14 @@ export interface Company {
   notes?: string
 }
 
+export type JobType = 'junior' | 'medior' | 'senior' | 'internship' | 'lead' | 'manager'
+export type JobQualification = 'not_required' | 'BSc' | 'MSc' | 'PhD'
+
 export interface Job {
   id: number
   role: string
-  type: string
-  qualification: string
+  type: JobType
+  qualification: JobQualification
   tech_requirements: string
   soft_skills: string
   company_id: number

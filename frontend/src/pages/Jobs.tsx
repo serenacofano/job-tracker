@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getJobs, createJob, deleteJob } from '../api/jobs'
-import type { Job } from '../types'
+import type { Job, JobType, JobQualification } from '../types'
 import Navbar from '../components/Navbar'
 import { getCompanies } from '../api/companies'
 
@@ -9,8 +9,8 @@ export default function Jobs() {
     const queryClient = useQueryClient()
     const [showForm, setShowForm] = useState(false)
     const [role, setRole] = useState('')
-    const [type, setType] = useState('')
-    const [qualification, setQualification] = useState('')
+    const [type, setType] = useState<JobType>('junior')
+    const [qualification, setQualification] = useState<JobQualification>('not_required')
     const [techRequirements, setTechRequirements] = useState('')
     const [softSkills, setSoftSkills] = useState('')
     const [companyId, setCompanyId] = useState('')
@@ -24,8 +24,8 @@ export default function Jobs() {
         queryClient.invalidateQueries({ queryKey: ['jobs'] })
         setShowForm(false)
         setRole('')
-        setType('')
-        setQualification('')
+        setType('junior')
+        setQualification('not_required')
         setTechRequirements('')
         setSoftSkills('')
         setCompanyId('')
@@ -68,23 +68,24 @@ export default function Jobs() {
             </div>
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <input
-                    type="text"
-                    value={type}
-                    onChange={e => setType(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    required
-                />
+                <select value={type} onChange={e => setType(e.target.value as JobType)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <option value="junior">Junior</option>
+                    <option value="medior">Medior</option>
+                    <option value="senior">Senior</option>
+                    <option value="internship">Internship</option>
+                    <option value="lead">Lead</option>
+                    <option value="manager">Manager</option>
+                </select>
             </div>
+
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
-                <input
-                    type="text"
-                    value={qualification}
-                    onChange={e => setQualification(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    required
-                />
+                <select value={qualification} onChange={e => setQualification(e.target.value as JobQualification)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <option value="BSc">BSc</option>
+                    <option value="MSc">MSc</option>
+                    <option value="PhD">PhD</option>
+                    <option value="not_required">Not Required</option>
+                </select>
             </div>
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tech Requirements</label>

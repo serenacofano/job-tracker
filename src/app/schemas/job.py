@@ -1,19 +1,20 @@
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
+from app.models.job import JobQualification, JobType
 
 class JobCreate(BaseModel):
     role: str
-    type: str
-    qualification: str
+    type: JobType
+    qualification: JobQualification
     tech_requirements: str
     soft_skills: str
     company_id: int
 
 class JobUpdate(BaseModel):
     role: Optional[str] = None
-    type: Optional[str] = None
-    qualification: Optional[str] = None
+    type: Optional[JobType] = None
+    qualification: Optional[JobQualification] = None
     tech_requirements: Optional[str] = None
     soft_skills: Optional[str] = None
     company_id: Optional[int] = None
@@ -23,8 +24,8 @@ class JobResponse(BaseModel):
 
     id: int
     role: str
-    type: str
-    qualification: str
+    type: JobType
+    qualification: JobQualification
     tech_requirements: str
     soft_skills: str
     company_id: int
