@@ -21,14 +21,20 @@ export interface Company {
 
 export type JobType = 'junior' | 'medior' | 'senior' | 'internship' | 'lead' | 'manager'
 export type JobQualification = 'not_required' | 'BSc' | 'MSc' | 'PhD'
+export type SkillCategory = 'soft' | 'tech'
+
+export interface Skill {
+  id: number
+  name: string
+  category: SkillCategory
+}
 
 export interface Job {
   id: number
   role: string
   type: JobType
   qualification: JobQualification
-  tech_requirements: string
-  soft_skills: string
+  skills: Skill[]
   company_id: number
 }
 
