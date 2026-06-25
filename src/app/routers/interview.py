@@ -37,8 +37,8 @@ def update(interview_id: int, data: InterviewUpdate, db: Session = Depends(get_d
     if interview is None:
         raise HTTPException(status_code=404, detail="Interview not found")
     if data.date is not None:
-        app_id = data.application_id if data.application_id is not None else interview.application_id
-        application = get_application(db, app_id)
+        app_id = data.application_id if data.application_id is not None else interview.application_id  # type: ignore[assignment]
+        application = get_application(db, app_id)  # type: ignore[arg-type]
         if application and data.date < application.date_applied:
             raise HTTPException(status_code=422, detail=f"Interview date must be on or after the application date ({application.date_applied})")
     return update_interview(db, interview, data)

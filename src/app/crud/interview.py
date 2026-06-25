@@ -7,13 +7,13 @@ def _sync_application_status(db: Session, application_id: int, outcome: Intervie
     if outcome == InterviewOutcome.failed:
         application = db.query(Application).filter(Application.id == application_id).first()
         if application:
-            application.status = ApplicationStatus.rejected
+            application.status = ApplicationStatus.rejected  # type: ignore[assignment]
 
 def create_interview(db: Session, data: InterviewCreate) -> Interview:
     db_obj = Interview(**data.model_dump())
     db.add(db_obj)
     db.flush()
-    _sync_application_status(db, db_obj.application_id, db_obj.outcome)
+    _sync_application_status(db, db_obj.application_id, db_obj.outcome)  # type: ignore[arg-type]
     db.commit()
     db.refresh(db_obj)
     return db_obj
@@ -21,7 +21,7 @@ def create_interview(db: Session, data: InterviewCreate) -> Interview:
 def update_interview(db: Session, db_obj: Interview, data: InterviewUpdate) -> Interview:
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(db_obj, field, value)
-    _sync_application_status(db, db_obj.application_id, db_obj.outcome)
+    _sync_application_status(db, db_obj.application_id, db_obj.outcome)  # type: ignore[arg-type]
     db.commit()
     db.refresh(db_obj)
     return db_obj 
