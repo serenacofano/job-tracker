@@ -3,7 +3,7 @@ import { getApplications } from '../api/applications'
 import { getJobs } from '../api/jobs'
 import type { InterviewType, InterviewerRole, InterviewOutcome, Interview } from '../types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Navbar from '../components/Navbar'
 import { useToast } from '../context/ToastContext'
 
@@ -24,6 +24,9 @@ export default function Interviews() {
     const [editQuestions, setEditQuestions] = useState('')
     const [editOutcome, setEditOutcome] = useState<InterviewOutcome>('pending')
     const [minDate, setMinDate] = useState('')
+
+    const [filterOutcome, setFilterOutcome] = useState<InterviewOutcome | ''>('')
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
     const { data: applications = [] } = useQuery({ queryKey: ['applications'], queryFn: getApplications })
     const { data: jobs = [] } = useQuery({ queryKey: ['jobs'], queryFn: getJobs })
@@ -91,6 +94,15 @@ export default function Interviews() {
         const app = applications.find(a => a.id === application_id)
         return app ? (jobs.find(j => j.id === app.job_id)?.role ?? `Job #${app.job_id}`) : `App #${application_id}`
     }
+
+    const filteredInterviews = useMemo(() => {
+        return interviews
+            .filter(i => filterOutcome === '' || i.outcome === filterOutcome)
+            .sort((a, b) => {
+                const diff = new Date(a.date).getTime() - new Date(b.date).getTime()
+                return sortOrder === 'asc' ? diff : -diff
+            })
+    }, [interviews, filterOutcome, sortOrder])
 
     const OUTCOME_COLORS: Record<InterviewOutcome, string> = {
         passed: 'bg-green-100 text-green-800',
@@ -201,8 +213,21 @@ export default function Interviews() {
                     </form>
                 )}
 
+                <div className="flex gap-3 mb-4">
+                    <select value={filterOutcome} onChange={e => setFilterOutcome(e.target.value as InterviewOutcome | '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="">All outcomes</option>
+                        <option value="pending">Pending</option>
+                        <option value="passed">Passed</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                    <select value={sortOrder} onChange={e => setSortOrder(e.target.value as 'asc' | 'desc')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="desc">Newest first</option>
+                        <option value="asc">Oldest first</option>
+                    </select>
+                </div>
+
                 <div className="space-y-3">
-                    {interviews.map(interview => (
+                    {filteredInterviews.map(interview => (
                         <div key={interview.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex justify-between items-center">
                             <div>
                                 <p className="font-medium text-gray-800">{getJobRole(interview.application_id)}</p>
@@ -217,8 +242,10 @@ export default function Interviews() {
                             </div>
                         </div>
                     ))}
-                    {interviews.length === 0 && (
-                        <p className="text-gray-400 text-sm">No interviews yet.</p>
+                    {filteredInterviews.length === 0 && (
+                        <p className="text-gray-400 text-sm">
+                            {interviews.length === 0 ? 'No interviews yet.' : 'No interviews match your filters.'}
+                        </p>
                     )}
                 </div>
             </div>

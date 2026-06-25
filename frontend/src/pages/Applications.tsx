@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getApplications, createApplication, deleteApplication, updateApplication } from '../api/applications'
 import { getJobs, createJob } from '../api/jobs'
@@ -52,6 +52,11 @@ export default function Applications() {
   const [status, setStatus] = useState<ApplicationStatus>('applied')
   const [dateApplied, setDateApplied] = useState('')
   const [cvUrl, setCvUrl] = useState('')
+
+  // Filters
+  const [search, setSearch] = useState('')
+  const [filterStatus, setFilterStatus] = useState<ApplicationStatus | ''>('')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   // Edit
   const [editingApp, setEditingApp] = useState<Application | null>(null)
@@ -127,6 +132,21 @@ export default function Applications() {
     const job = jobs.find(j => j.id === job_id)
     return job ? (companies.find(c => c.id === job.company_id)?.name ?? '—') : '—'
   }
+
+  const filteredApplications = useMemo(() => {
+    return applications
+      .filter(app => {
+        const role = getJobRole(app.job_id).toLowerCase()
+        const company = getCompanyName(app.job_id).toLowerCase()
+        const matchesSearch = role.includes(search.toLowerCase()) || company.includes(search.toLowerCase())
+        const matchesStatus = filterStatus === '' || app.status === filterStatus
+        return matchesSearch && matchesStatus
+      })
+      .sort((a, b) => {
+        const diff = new Date(a.date_applied).getTime() - new Date(b.date_applied).getTime()
+        return sortOrder === 'asc' ? diff : -diff
+      })
+  }, [applications, search, filterStatus, sortOrder, jobs, companies])
 
   const handleEdit = (app: Application) => {
     setEditingApp(app)
@@ -412,9 +432,30 @@ export default function Applications() {
           </form>
         )}
 
+        {/* Filters */}
+        <div className="flex gap-3 mb-4">
+          <input
+            type="text"
+            placeholder="Search by role or company..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as ApplicationStatus | '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">All statuses</option>
+            {(Object.keys(STATUS_LABELS) as ApplicationStatus[]).map(s => (
+              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+            ))}
+          </select>
+          <select value={sortOrder} onChange={e => setSortOrder(e.target.value as 'asc' | 'desc')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="desc">Newest first</option>
+            <option value="asc">Oldest first</option>
+          </select>
+        </div>
+
         {/* Applications list */}
         <div className="space-y-3">
-          {applications.map(app => (
+          {filteredApplications.map(app => (
             <div key={app.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex justify-between items-center">
               <div>
                 <p className="font-medium text-gray-800">{getJobRole(app.job_id)}</p>
@@ -429,8 +470,10 @@ export default function Applications() {
               </div>
             </div>
           ))}
-          {applications.length === 0 && (
-            <p className="text-gray-400 text-sm">No applications yet.</p>
+          {filteredApplications.length === 0 && (
+            <p className="text-gray-400 text-sm">
+              {applications.length === 0 ? 'No applications yet.' : 'No applications match your filters.'}
+            </p>
           )}
         </div>
       </div>
