@@ -20,9 +20,10 @@ export default function Interviews() {
 
     const [editingInt, setEditingInt] = useState<Interview | null>(null)
     const [editRole, setEditRole] = useState<InterviewerRole>('hr')
-    const [editDate, setEditDate] = useState('')    
+    const [editDate, setEditDate] = useState('')
     const [editQuestions, setEditQuestions] = useState('')
     const [editOutcome, setEditOutcome] = useState<InterviewOutcome>('pending')
+    const [minDate, setMinDate] = useState('')
 
     const { data: applications = [] } = useQuery({ queryKey: ['applications'], queryFn: getApplications })
     const { data: jobs = [] } = useQuery({ queryKey: ['jobs'], queryFn: getJobs })
@@ -76,6 +77,8 @@ export default function Interviews() {
         setEditDate(interview.date)
         setEditQuestions(interview.questions ?? '')
         setEditOutcome(interview.outcome)
+        const app = applications.find(a => a.id === interview.application_id)
+        setMinDate(app?.date_applied ?? '')
     }
 
     const handleUpdate = (e: React.FormEvent) => {
@@ -113,7 +116,7 @@ export default function Interviews() {
                     <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Application</label>
-                            <select value={applicationId} onChange={e => setApplicationId(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <select value={applicationId} onChange={e => { setApplicationId(e.target.value); const app = applications.find(a => a.id === parseInt(e.target.value)); setMinDate(app?.date_applied ?? '') }} className="w-full border border-gray-300 rounded-lg px-3 py-2" required>
                                 <option value="">Select an application</option>
                                 {applications.map(app => (
                                     <option key={app.id} value={app.id}>{getJobRole(app.id)}</option>
@@ -139,7 +142,7 @@ export default function Interviews() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" required />
+                            <input type="date" value={date} min={minDate} onChange={e => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" required />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Questions</label>
@@ -177,7 +180,7 @@ export default function Interviews() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                            <input type="date" value={editDate} min={minDate} onChange={e => setEditDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Questions</label>
