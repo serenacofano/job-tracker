@@ -5,6 +5,7 @@ import type { InterviewType, InterviewerRole, InterviewOutcome, Interview } from
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
+import { useToast } from '../context/ToastContext'
 
 export default function Interviews() {
     const queryClient = useQueryClient()
@@ -27,6 +28,8 @@ export default function Interviews() {
     const { data: jobs = [] } = useQuery({ queryKey: ['jobs'], queryFn: getJobs })
     const { data: interviews = [] } = useQuery({ queryKey: ['interviews'], queryFn: getInterviews })
 
+    const { showToast } = useToast()
+
     const createMutation = useMutation({
         mutationFn: createInterview,
         onSuccess: () => {
@@ -40,11 +43,13 @@ export default function Interviews() {
             setOutcome('pending')
             setFeeling('')
         },
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to create interview')
     })
 
     const deleteMutation = useMutation({
         mutationFn: deleteInterview,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['interviews'] }),
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to delete interview')
     })
 
     const updateMutation = useMutation({
@@ -57,6 +62,7 @@ export default function Interviews() {
             setEditQuestions('')
             setEditOutcome('pending')
         },
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to update interview')
     })
 
     const handleSubmit = (e: React.FormEvent) => {

@@ -5,6 +5,7 @@ import { getSkills, createSkill } from '../api/skills'
 import type { JobType, JobQualification, SkillCategory } from '../types'
 import Navbar from '../components/Navbar'
 import { getCompanies } from '../api/companies'
+import { useToast } from '../context/ToastContext'
 
 export default function Jobs() {
     const queryClient = useQueryClient()
@@ -22,6 +23,8 @@ export default function Jobs() {
     const { data: companies = [] } = useQuery({ queryKey: ['companies'], queryFn: getCompanies })
     const { data: skills = [] } = useQuery({ queryKey: ['skills'], queryFn: getSkills })
 
+    const { showToast } = useToast()
+
     const createMutation = useMutation({
         mutationFn: createJob,
         onSuccess: () => {
@@ -33,6 +36,7 @@ export default function Jobs() {
             setCompanyId('')
             setSelectedSkillIds([])
         },
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to create job')
     })
 
     const createSkillMutation = useMutation({
@@ -43,11 +47,13 @@ export default function Jobs() {
             setNewSkillName('')
             setShowSkillModal(false)
         },
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to create skill')
     })
 
     const deleteMutation = useMutation({
         mutationFn: deleteJob,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to delete job')
     })
 
     const handleSubmit = (e: React.FormEvent) => {

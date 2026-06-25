@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getCompanies, createCompany, deleteCompany } from '../api/companies'
 import Navbar from '../components/Navbar'
+import { useToast } from '../context/ToastContext'
 
 export default function Companies() {
     const queryClient = useQueryClient()
@@ -15,6 +16,8 @@ export default function Companies() {
 
     const { data: companies = [] } = useQuery({ queryKey: ['companies'], queryFn: getCompanies })
 
+    const { showToast } = useToast()
+
     const createMutation = useMutation({
         mutationFn: createCompany,
         onSuccess: () => {
@@ -27,11 +30,13 @@ export default function Companies() {
         setWebsite('')
         setNotes('')
         },
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to create company')
     })
 
     const deleteMutation = useMutation({
         mutationFn: deleteCompany,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['companies'] }),
+        onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to delete company')
     })
 
     const handleSubmit = (e: React.FormEvent) => {

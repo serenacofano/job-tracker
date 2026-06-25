@@ -7,6 +7,7 @@ import Applications from './pages/Applications'
 import Companies from './pages/Companies'
 import Jobs from './pages/Jobs'
 import Interviews from './pages/Interviews'
+import { ToastProvider } from './context/ToastContext'
 
 const queryClient = new QueryClient()
 
@@ -18,6 +19,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ToastProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -50,6 +52,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>
   )
 }
