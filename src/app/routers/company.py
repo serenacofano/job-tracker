@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.crud.company import create_company, delete_company, get_companies, get_company, update_company
@@ -41,4 +42,8 @@ def delete(company_id: int, db: Session = Depends(get_db), current_user: User = 
     company = get_company(db, company_id)
     if company is None:
         raise HTTPException(status_code=404, detail="Company not found")
-    delete_company(db, company)
+    try:
+        delete_company(db, company)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Cannot delete this company because it has linked jobs. Delete them first.")

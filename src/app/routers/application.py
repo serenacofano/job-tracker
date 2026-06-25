@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.crud.application import create_application, delete_application, get_applications, get_application, update_application
@@ -37,4 +38,8 @@ def delete(application_id: int, db: Session = Depends(get_db), current_user: Use
     application = get_application(db, application_id)
     if application is None:
         raise HTTPException(status_code=404, detail="Application not found")
-    delete_application(db, application)
+    try:
+        delete_application(db, application)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Cannot delete this application because it has linked interviews. Delete them first.")

@@ -1,16 +1,19 @@
-from app.models.interview import Interview
+from app.models.interview import Interview, InterviewOutcome
+from app.models.application import Application, ApplicationStatus
 from app.schemas.interview import InterviewCreate, InterviewUpdate
 from sqlalchemy.orm import Session
 
-def get_interview(db: Session, interview_id: int) -> Interview | None:
-    return db.query(Interview).filter(Interview.id == interview_id).first()
-
-def get_interviews(db: Session, skip=0, limit=100) -> list[Interview]:
-    return db.query(Interview).offset(skip).limit(limit).all()
+def _sync_application_status(db: Session, application_id: int, outcome: InterviewOutcome) -> None:
+    if outcome == InterviewOutcome.failed:
+        application = db.query(Application).filter(Application.id == application_id).first()
+        if application:
+            application.status = ApplicationStatus.rejected  # type: ignore[assignment]
 
 def create_interview(db: Session, data: InterviewCreate) -> Interview:
     db_obj = Interview(**data.model_dump())
     db.add(db_obj)
+    db.flush()
+    _sync_application_status(db, db_obj.application_id, db_obj.outcome)  # type: ignore[arg-type]
     db.commit()
     db.refresh(db_obj)
     return db_obj
@@ -18,9 +21,16 @@ def create_interview(db: Session, data: InterviewCreate) -> Interview:
 def update_interview(db: Session, db_obj: Interview, data: InterviewUpdate) -> Interview:
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(db_obj, field, value)
+    _sync_application_status(db, db_obj.application_id, db_obj.outcome)  # type: ignore[arg-type]
     db.commit()
     db.refresh(db_obj)
-    return db_obj
+    return db_obj 
+
+def get_interview(db: Session, interview_id: int) -> Interview | None:
+    return db.query(Interview).filter(Interview.id == interview_id).first()
+
+def get_interviews(db: Session, skip=0, limit=100) -> list[Interview]:
+    return db.query(Interview).offset(skip).limit(limit).all()
 
 def delete_interview(db: Session, db_obj: Interview) -> None:
     db.delete(db_obj)

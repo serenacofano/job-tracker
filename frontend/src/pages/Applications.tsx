@@ -5,6 +5,7 @@ import { getJobs } from '../api/jobs'
 import { getCompanies } from '../api/companies'
 import type { Application, ApplicationStatus } from '../types'
 import Navbar from '../components/Navbar'
+import { useToast } from '../context/ToastContext'
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
   applied: 'Applied',
@@ -39,6 +40,8 @@ export default function Applications() {
   const { data: jobs = [] } = useQuery({ queryKey: ['jobs'], queryFn: getJobs })
   const { data: companies = [] } = useQuery({ queryKey: ['companies'], queryFn: getCompanies })
 
+  const { showToast } = useToast()
+
   const createMutation = useMutation({
     mutationFn: createApplication,
     onSuccess: () => {
@@ -47,11 +50,13 @@ export default function Applications() {
       setJobId('')
       setDateApplied('')
     },
+    onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to create application')
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteApplication,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['applications'] }),
+    onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to delete application')
   })
 
   const updateMutation = useMutation({
@@ -60,6 +65,7 @@ export default function Applications() {
       queryClient.invalidateQueries({ queryKey: ['applications'] })
       setEditingApp(null)
     },
+    onError: (error: any) => showToast(error.response?.data?.detail ?? 'Failed to update application')
   })
 
   const getJobRole = (job_id: number) => jobs.find(j => j.id === job_id)?.role ?? `Job #${job_id}`
