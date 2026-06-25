@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.crud.job import create_job, delete_job, get_jobs, get_job, update_job
@@ -37,4 +38,8 @@ def delete(job_id: int, db: Session = Depends(get_db), current_user: User = Depe
     job = get_job(db, job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found")
-    delete_job(db, job) 
+    try:
+        delete_job(db, job)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Cannot delete this job because it has linked applications. Delete them first.")
