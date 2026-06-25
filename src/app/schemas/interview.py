@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import date
+from datetime import date as Date
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -10,7 +10,7 @@ class InterviewCreate(BaseModel):
     application_id: int
     type: InterviewType
     interviewer_role: InterviewerRole
-    date: date
+    date: Date
     questions: Optional[str] = None
     outcome: InterviewOutcome
     feeling: int = Field(ge=1, le=5)
@@ -20,7 +20,7 @@ class InterviewUpdate(BaseModel):
     application_id: Optional[int] = None
     type: Optional[InterviewType] = None
     interviewer_role: Optional[InterviewerRole] = None
-    date: Optional[date] = None
+    date: Optional[Date] = None
     questions: Optional[str] = None
     outcome: Optional[InterviewOutcome] = None
     feeling: Optional[int] = Field(default=None, ge=1, le=5)
@@ -33,7 +33,7 @@ class InterviewResponse(BaseModel):
     application_id: int
     type: InterviewType
     interviewer_role: InterviewerRole
-    date: date
+    date: Date
     questions: Optional[str] = None
     outcome: InterviewOutcome
     feeling: Optional[int] = None
