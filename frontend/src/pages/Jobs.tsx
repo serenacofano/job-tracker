@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getJobs, createJob, deleteJob } from '../api/jobs'
 import { getSkills, createSkill } from '../api/skills'
@@ -18,6 +18,10 @@ export default function Jobs() {
     const [showSkillModal, setShowSkillModal] = useState(false)
     const [newSkillName, setNewSkillName] = useState('')
     const [newSkillCategory, setNewSkillCategory] = useState<SkillCategory>('tech')
+
+    const [search, setSearch] = useState('')
+    const [filterType, setFilterType] = useState<JobType | ''>('')
+    const [filterQualification, setFilterQualification] = useState<JobQualification | ''>('')
 
     const { data: jobs = [] } = useQuery({ queryKey: ['jobs'], queryFn: getJobs })
     const { data: companies = [] } = useQuery({ queryKey: ['companies'], queryFn: getCompanies })
@@ -79,6 +83,16 @@ export default function Jobs() {
     }
 
     const selectedSkills = skills.filter(s => selectedSkillIds.includes(s.id))
+
+    const filteredJobs = useMemo(() => {
+        return jobs.filter(job => {
+            const matchesSearch = job.role.toLowerCase().includes(search.toLowerCase()) ||
+                (companies.find(c => c.id === job.company_id)?.name ?? '').toLowerCase().includes(search.toLowerCase())
+            const matchesType = filterType === '' || job.type === filterType
+            const matchesQualification = filterQualification === '' || job.qualification === filterQualification
+            return matchesSearch && matchesType && matchesQualification
+        })
+    }, [jobs, search, filterType, filterQualification, companies])
 
     return (
         <>
@@ -174,8 +188,34 @@ export default function Jobs() {
                 </form>
             )}
 
+            <div className="flex gap-3 mb-4">
+                <input
+                    type="text"
+                    placeholder="Search by role or company..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+                <select value={filterType} onChange={e => setFilterType(e.target.value as JobType | '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <option value="">All types</option>
+                    <option value="junior">Junior</option>
+                    <option value="medior">Medior</option>
+                    <option value="senior">Senior</option>
+                    <option value="internship">Internship</option>
+                    <option value="lead">Lead</option>
+                    <option value="manager">Manager</option>
+                </select>
+                <select value={filterQualification} onChange={e => setFilterQualification(e.target.value as JobQualification | '')} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <option value="">All qualifications</option>
+                    <option value="not_required">Not Required</option>
+                    <option value="BSc">BSc</option>
+                    <option value="MSc">MSc</option>
+                    <option value="PhD">PhD</option>
+                </select>
+            </div>
+
             <div className="space-y-3">
-                {jobs.map(job => (
+                {filteredJobs.map(job => (
                     <div key={job.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex justify-between items-center">
                         <div>
                             <p className="font-medium text-gray-800">{job.role}</p>
@@ -196,6 +236,11 @@ export default function Jobs() {
                         </button>
                     </div>
                 ))}
+                {filteredJobs.length === 0 && (
+                    <p className="text-gray-400 text-sm">
+                        {jobs.length === 0 ? 'No jobs yet.' : 'No jobs match your filters.'}
+                    </p>
+                )}
             </div>
         </div>
 

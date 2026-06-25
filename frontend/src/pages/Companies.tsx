@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getCompanies, createCompany, deleteCompany } from '../api/companies'
 import Navbar from '../components/Navbar'
@@ -14,9 +14,18 @@ export default function Companies() {
     const [website, setWebsite] = useState('')
     const [notes, setNotes] = useState('')
 
+    const [search, setSearch] = useState('')
+
     const { data: companies = [] } = useQuery({ queryKey: ['companies'], queryFn: getCompanies })
 
     const { showToast } = useToast()
+
+    const filteredCompanies = useMemo(() => {
+        return companies.filter(c =>
+            c.name.toLowerCase().includes(search.toLowerCase()) ||
+            c.location.toLowerCase().includes(search.toLowerCase())
+        )
+    }, [companies, search])
 
     const createMutation = useMutation({
         mutationFn: createCompany,
@@ -122,8 +131,18 @@ export default function Companies() {
                 </button>
             </form>
             )}
+        <div className="mb-4">
+            <input
+                type="text"
+                placeholder="Search by name or location..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            />
+        </div>
+
         <div className="space-y-3">
-        {companies.map(company => (
+        {filteredCompanies.map(company => (
             <div key={company.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex justify-between items-center">
             <div>
                 <p className="font-medium text-gray-800">{company.name}</p>
@@ -137,8 +156,10 @@ export default function Companies() {
             </button>
             </div>
         ))}
-        {companies.length === 0 && (
-            <p className="text-gray-400 text-sm">No companies yet.</p>
+        {filteredCompanies.length === 0 && (
+            <p className="text-gray-400 text-sm">
+                {companies.length === 0 ? 'No companies yet.' : 'No companies match your search.'}
+            </p>
         )}
         </div>
         </div>
