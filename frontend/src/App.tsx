@@ -7,6 +7,7 @@ import Applications from './pages/Applications'
 import Companies from './pages/Companies'
 import Jobs from './pages/Jobs'
 import Interviews from './pages/Interviews'
+import ApplicationsDetail from './pages/ApplicationsDetail'
 import { ToastProvider } from './context/ToastContext'
 
 const queryClient = new QueryClient()
@@ -32,6 +33,11 @@ export default function App() {
           <Route path="/applications" element={
             <PrivateRoute>
               <Applications />
+            </PrivateRoute>
+          } />
+          <Route path="/applications/:id" element={
+            <PrivateRoute>
+              <ApplicationsDetail />
             </PrivateRoute>
           } />
           <Route path="/companies" element={
