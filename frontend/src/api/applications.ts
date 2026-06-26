@@ -6,6 +6,11 @@ export const getApplications = async (): Promise<Application[]> => {
   return response.data
 }
 
+export const getApplication = async (id: number): Promise<Application> => {
+  const response = await client.get<Application>(`/applications/${id}/`)
+  return response.data
+}
+
 export const createApplication = async (data: {
     job_id: number; 
     status: ApplicationStatus; 

@@ -48,24 +48,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Recent Applications</h2>
-      <div className="space-y-3">
-        {applications.slice(0, 10).map(app => (
-          <div key={app.id} className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex justify-between items-center">
-            <div>
-              <p className="text-sm text-gray-500">Application #{app.id}</p>
-              <p className="text-sm text-gray-400">{app.date_applied}</p>
-            </div>
-            <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUS_COLORS[app.status]}`}>
-              {STATUS_LABELS[app.status]}
-            </span>
-          </div>
-        ))}
-        {applications.length === 0 && (
-          <p className="text-gray-400 text-sm">No applications yet.</p>
-        )}
-      </div>
     </div>
     </>
   )
